@@ -20,8 +20,8 @@ jobs:
 
       - name: Build e Push da imagem simples
         run: |
-          docker build -t paulo0107/pudim:latest .
-          docker push paulo0107/pudim:latest
+          docker build -t guigozt/pudim:latest .
+          docker push guigozt/pudim:latest
 
   deploy:
     needs: build-and-push
@@ -35,9 +35,9 @@ jobs:
           username: ${{ secrets.AZURE_VM_USER }}
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
           script: |
-            docker pull paulo0107/pudim:latest
+            docker pull guigozt/pudim:latest
             docker rm -f pudim app-docker-aula || true
-            docker run -d --name pudim -p 69:80 --restart unless-stopped paulo0107/pudim:latest
+            docker run -d --name pudim -p 69:80 --restart unless-stopped guigozt/pudim:latest
 
 
 
