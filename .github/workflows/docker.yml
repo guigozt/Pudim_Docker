@@ -28,6 +28,18 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copiar docker-compose.yml para a VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AZURE_VM_HOST }}
+          username: ${{ secrets.AZURE_VM_USER }}
+          key: ${{ secrets.AZURE_VM_SSH_KEY }}
+          source: "docker-compose.yml"
+          target: "~/app"
+
       - name: Implantar na VM via SSH
         uses: appleboy/ssh-action@v1
         with:
@@ -35,12 +47,9 @@ jobs:
           username: ${{ secrets.AZURE_VM_USER }}
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
           script: |
+            # 1. Deploy da página simples (Porta 80)
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/pudim_site:latest
             docker rm -f pudim-site || true
-            docker run -d --name pudim-site -p 80:80 --restart unless-stopped ${{ secrets.DOCKERHUB_USERNAME }}/pudim_site:latest
+            docker run -d --name pudim-site -p 69:80 --restart unless-stopped ${{ secrets.DOCKERHUB_USERNAME }}/pudim_site:latest
 
-            # 2. Deploy do site com Banco de Dados via Docker Compose (Porta 8080)
-            cd ~/app
-            docker compose pull
-            docker compose up -d
 
