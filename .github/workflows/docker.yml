@@ -37,7 +37,7 @@ jobs:
           script: |
             docker pull guigozt/pudim:latest
             docker rm -f pudim app-docker-aula || true
-            docker run -d --name pudim -p 69:80 --restart unless-stopped guigozt/pudim:latest
+            docker run -d --name pudim -p 31415:80 --restart unless-stopped guigozt/pudim:latest
 
 
 
