@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,26 +20,14 @@ jobs:
 
       - name: Build e Push da imagem simples
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/pudim_site:latest .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/pudim_site:latest
+          docker build -t paulo0107/pudim:latest .
+          docker push paulo0107/pudim:latest
 
   deploy:
-    needs: build
+    needs: build-and-push
     runs-on: ubuntu-latest
-    environment: production
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Copiar docker-compose.yml para a VM
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.AZURE_VM_HOST }}
-          username: ${{ secrets.AZURE_VM_USER }}
-          key: ${{ secrets.AZURE_VM_SSH_KEY }}
-          source: "docker-compose.yml"
-          target: "~/app"
-
       - name: Implantar na VM via SSH
         uses: appleboy/ssh-action@v1
         with:
@@ -47,9 +35,9 @@ jobs:
           username: ${{ secrets.AZURE_VM_USER }}
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
           script: |
-            # 1. Deploy da página simples (Porta 80)
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/pudim_site:latest
-            docker rm -f pudim-site || true
-            docker run -d --name pudim-site -p 69:80 --restart unless-stopped ${{ secrets.DOCKERHUB_USERNAME }}/pudim_site:latest
+            docker pull paulo0107/pudim:latest
+            docker rm -f pudim app-docker-aula || true
+            docker run -d --name pudim -p 69:80 --restart unless-stopped paulo0107/pudim:latest
+
 
 
